@@ -4,6 +4,7 @@ import { trpc } from "@/app/trpc/client";
 import { Button } from "@/components/ui/button";
 import { Loader2Icon, Plus } from "lucide-react";
 import { ResponsiveModel } from "@/components/responsive-dialog";
+import { StudioUploader } from "./studio-uploader";
 
 const StudioUploadModal = () => {
   const utils = trpc.useUtils();
@@ -25,9 +26,9 @@ const StudioUploadModal = () => {
         title="Upload a Video"
         onOpenChange={createVideo.reset}
       >
-        <p>This will be an uploader</p>
+        <StudioUploader endpoint="DD" />
       </ResponsiveModel>
-      <Button variant="secondary" onClick={() => createVideo.mutate()}>
+      <Button variant="secondary">
         {createVideo.isPending ? (
           <Loader2Icon className="animate-spin" />
         ) : (
