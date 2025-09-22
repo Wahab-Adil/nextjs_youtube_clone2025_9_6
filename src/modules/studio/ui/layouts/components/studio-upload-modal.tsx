@@ -24,11 +24,17 @@ const StudioUploadModal = () => {
       <ResponsiveModel
         open={!!createVideo.data}
         title="Upload a Video"
-        onOpenChange={createVideo.reset}
+        onOpenChange={() => createVideo.reset()}
       >
         <StudioUploader endpoint="DD" />
       </ResponsiveModel>
-      <Button variant="secondary">
+      <Button
+        onClick={() => {
+          createVideo.mutate();
+        }}
+        variant="secondary"
+        className="hover:cursor-pointer"
+      >
         {createVideo.isPending ? (
           <Loader2Icon className="animate-spin" />
         ) : (
