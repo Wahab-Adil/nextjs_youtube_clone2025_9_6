@@ -22,11 +22,18 @@ const StudioUploadModal = () => {
   return (
     <>
       <ResponsiveModel
-        open={!!createVideo.data}
+        open={!!createVideo.data?.url}
         title="Upload a Video"
         onOpenChange={() => createVideo.reset()}
       >
-        <StudioUploader endpoint="DD" />
+        {createVideo?.data?.url ? (
+          <StudioUploader
+            endpoint={createVideo?.data?.url}
+            onSuccess={() => {}}
+          />
+        ) : (
+          <Loader2Icon className="animate-spin" />
+        )}
       </ResponsiveModel>
       <Button
         onClick={() => {
