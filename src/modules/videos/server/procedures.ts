@@ -21,9 +21,11 @@ export const videosRouter = createTRPCRouter({
       .values({
         userId,
         title: "untitiled",
+        muxStatus: "waiting",
+        muxUploadId: upload.id,
       })
       .returning();
 
-    return video;
+    return { video, url: upload.url };
   }),
 });
