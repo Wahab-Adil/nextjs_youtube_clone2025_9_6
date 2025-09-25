@@ -16,6 +16,8 @@ import { DEFAULT_LIMIT } from "@/app/constants";
 import { ErrorBoundary } from "react-error-boundary";
 import { InfiniteScroll } from "@/components/infinate-scroll";
 
+import VideoThumbnail from "@/modules/videos/ui/components/video-thumbnail";
+
 export function VideosSection() {
   return (
     <Suspense fallback={<p>Loading...</p>}>
@@ -60,7 +62,23 @@ const VideosSectionSuspense = () => {
                   className="cursor-pointer"
                 >
                   <TableCell className="pl-6 w-[510px]">
-                    {video.title}
+                    <div className="flex items-center gap-4">
+                      <div className="relative aspect-video w-36 shrink-0">
+                        <VideoThumbnail imageUrl={video.thumbnailUrl} />
+                      </div>
+                      <div className="min-w00">
+                        <div
+                          onClick={() =>
+                            router.push(`/studio/videos/${video?.id}`)
+                          }
+                        >
+                          <a className="">{video.title ?? "Untitled"}</a>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {/* small meta if needed */}
+                        </div>
+                      </div>
+                    </div>
                   </TableCell>
                   <TableCell>Visibility</TableCell>
                   <TableCell>Status</TableCell>

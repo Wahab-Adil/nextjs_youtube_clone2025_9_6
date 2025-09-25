@@ -1,5 +1,4 @@
 import { db } from "@/db";
-import Mux from "@mux/mux-node";
 import { eq } from "drizzle-orm";
 import { videos } from "@/db/schema";
 import { headers } from "next/headers";
@@ -7,7 +6,7 @@ import {
   VideoAssetCreatedWebhookEvent,
   VideoAssetErroredWebhookEvent,
   VideoAssetTrackReadyWebhookEvent,
-  VideoAssetMasterReadyWebhookEvent,
+  VideoAssetReadyWebhookEvent,
 } from "@mux/mux-node/resources/webhooks";
 import { mux } from "@/lib/mux";
 
@@ -20,7 +19,7 @@ export const POST = async (request: Request) => {
     | VideoAssetCreatedWebhookEvent
     | VideoAssetErroredWebhookEvent
     | VideoAssetTrackReadyWebhookEvent
-    | VideoAssetMasterReadyWebhookEvent;
+    | VideoAssetReadyWebhookEvent;
 
   const headerList = await headers();
   const muxSignature = headerList.get("mux-signature");
@@ -51,6 +50,36 @@ export const POST = async (request: Request) => {
 
       break;
     }
+    case "video.asset.ready": {
+      const data = (payload as VideoAssetReadyWebhookEvent).data;
+      const playBackId = data?.playback_ids?.[0].id;
+      console.log("playid", playBackId);
+      if (!playBackId) {
+        return new Response("Missing PlayBack Id", { status: 400 });
+      }
+
+      const thumbnailUrl = `https://image.mux.com/${playBackId}/thumbnail.jpg`;
+      console.log("y", thumbnailUrl);
+
+      const uploadId = data?.upload_id;
+      if (!uploadId) {
+        return new Response("Upload Id is Missing", { status: 400 });
+      }
+
+      await db
+        .update(videos)
+        .set({
+          muxStatus: data.status,
+          muxPlaybackId: playBackId,
+          muxAssetId: data?.id,
+          thumbnailUrl: thumbnailUrl,
+        })
+        .where(eq(videos.muxUploadId, uploadId));
+
+      break;
+    }
+    default:
+      break;
   }
   return new Response("OK", { status: 200 });
 };
