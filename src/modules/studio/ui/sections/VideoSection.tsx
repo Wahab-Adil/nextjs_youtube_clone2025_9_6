@@ -64,7 +64,12 @@ const VideosSectionSuspense = () => {
                   <TableCell className="pl-6 w-[510px]">
                     <div className="flex items-center gap-4">
                       <div className="relative aspect-video w-36 shrink-0">
-                        <VideoThumbnail imageUrl={video.thumbnailUrl} />
+                        <VideoThumbnail
+                          imageUrl={video.thumbnailUrl}
+                          previewUrl={video.previewUrl}
+                          duration={video.duration || 0}
+                          title={video.title}
+                        />
                       </div>
                       <div className="min-w00">
                         <div
@@ -72,7 +77,7 @@ const VideosSectionSuspense = () => {
                             router.push(`/studio/videos/${video?.id}`)
                           }
                         >
-                          <a className="">{video.title ?? "Untitled"}</a>
+                          <p className="">{video.title ?? "Untitled"}</p>
                         </div>
                         <div className="text-xs text-muted-foreground">
                           {/* small meta if needed */}
