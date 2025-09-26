@@ -59,7 +59,8 @@ export const POST = async (request: Request) => {
       }
 
       const thumbnailUrl = `https://image.mux.com/${playBackId}/thumbnail.jpg`;
-      console.log("y", thumbnailUrl);
+      const previewUrl = `https://image.mux.com/${playBackId}/animated.gif`;
+      const duration = data.duration ? Math.round(data.duration * 1000) : 0;
 
       const uploadId = data?.upload_id;
       if (!uploadId) {
@@ -73,6 +74,8 @@ export const POST = async (request: Request) => {
           muxPlaybackId: playBackId,
           muxAssetId: data?.id,
           thumbnailUrl: thumbnailUrl,
+          previewUrl,
+          duration: duration,
         })
         .where(eq(videos.muxUploadId, uploadId));
 
