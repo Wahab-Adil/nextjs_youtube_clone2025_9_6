@@ -4,8 +4,8 @@ import Image from "next/image";
 interface VideoThumbnailProps {
   alt?: string;
   title: string;
-  className?: string;
   duration: number;
+  className?: string;
   imageUrl?: string | null;
   previewUrl?: string | null;
 }
@@ -21,7 +21,6 @@ const VideoThumbnail = ({
   const src = imageUrl ?? "/placeholder.svg";
   const previewSrc = previewUrl ?? null;
 
-  console.log("dd", imageUrl, alt, previewUrl, title, duration);
   return (
     <div className="relative group">
       <div className="relative w-full overflow-hidden rounded-xl aspect-video">
@@ -31,6 +30,7 @@ const VideoThumbnail = ({
           fill
           className="h-full w-full object-cover transition-all duration-300 group-hover:opacity-0"
           sizes="(max-width:768px) 100vw, 33vw"
+          unoptimized={!!previewUrl}
         />
         {previewSrc ? (
           <Image
@@ -39,6 +39,7 @@ const VideoThumbnail = ({
             fill
             className="h-full w-full object-cover opacity-0 transition-all duration-300 group-hover:opacity-100"
             sizes="(max-width: 768px) 100vw, 240px"
+            unoptimized={!!previewUrl}
           />
         ) : null}
       </div>
