@@ -6,6 +6,7 @@ import {
   timestamp,
   uniqueIndex,
   integer,
+  pgEnum,
 } from "drizzle-orm/pg-core";
 
 export const users = pgTable(
@@ -33,13 +34,19 @@ export const categories = pgTable(
   (t) => [uniqueIndex("name_idx").on(t.name)]
 );
 
+export const videoVisibility = pgEnum("video_visibility", [
+  "private",
+  "public",
+]);
+
 export const videos = pgTable("videos", {
   id: uuid("id").primaryKey().defaultRandom(),
   title: text("title").notNull(),
   description: text("description"),
   thumbnailUrl: text("thumbnail_url"),
   previewUrl: text("preview_url"),
-  duration: integer("duration"),
+  duration: integer("duration").default(0).notNull(),
+  visibility: videoVisibility().notNull().default("private"),
   muxStatus: text("mux_status"),
   muxAssetId: text("mux_asset_id").unique(),
   muxUploadId: text("mux_upload_id").unique(),
