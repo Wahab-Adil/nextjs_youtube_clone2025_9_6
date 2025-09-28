@@ -41,7 +41,6 @@ export const POST = async (request: Request) => {
   switch ((payload as WEBHOOKEvent).type) {
     case "video.asset.created": {
       const data = (payload as VideoAssetCreatedWebhookEvent).data;
-      console.log("created", data.upload_id);
       if (!data.upload_id) {
         return new Response("No Upload Id", { status: 400 });
       }
@@ -57,7 +56,6 @@ export const POST = async (request: Request) => {
       const data = (payload as VideoAssetReadyWebhookEvent).data;
       const playBackId = data?.playback_ids?.[0].id;
 
-      console.log(data, "ready");
       if (!playBackId) {
         return new Response("Missing PlayBack Id", { status: 400 });
       }
@@ -67,7 +65,6 @@ export const POST = async (request: Request) => {
       const duration = data.duration ? Math.round(data.duration * 1000) : 0;
 
       const uploadId = data?.upload_id;
-      console.log("ready", data.upload_id);
       if (!uploadId) {
         return new Response("Upload Id is Missing", { status: 400 });
       }
@@ -90,7 +87,6 @@ export const POST = async (request: Request) => {
     case "video.asset.errored": {
       const data = (payload as VideoAssetErroredWebhookEvent).data;
       if (!data.upload_id) break;
-      console.log("errored", data.upload_id);
       await db
         .update(videos)
         .set({ muxStatus: data.status })
@@ -101,7 +97,6 @@ export const POST = async (request: Request) => {
 
     case "video.asset.deleted": {
       const data = (payload as VideoAssetDeletedWebhookEvent).data;
-      console.log("deleted", data);
       if (!data.upload_id) break;
 
       await db.delete(videos).where(eq(videos.muxUploadId, data.upload_id));
@@ -110,10 +105,10 @@ export const POST = async (request: Request) => {
     }
 
     case "video.asset.track.ready": {
-      const data = payload as VideoAssetTrackReadyWebhookEvent["data"] & {
+      const data = payload.data as VideoAssetTrackReadyWebhookEvent["data"] & {
         asset_id: string;
       };
-
+      console.log("track ready", data.asset_id);
       const assetId = data.asset_id;
       const trackId = data.id;
       const status = data.status;
