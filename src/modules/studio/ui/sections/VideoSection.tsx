@@ -17,6 +17,9 @@ import { ErrorBoundary } from "react-error-boundary";
 import { InfiniteScroll } from "@/components/infinate-scroll";
 
 import VideoThumbnail from "@/modules/videos/ui/components/video-thumbnail";
+import { snakeCaseToTitle } from "@/lib/utils";
+import { format } from "date-fns";
+import { Globe2, Lock } from "lucide-react";
 
 export function VideosSection() {
   return (
@@ -64,28 +67,46 @@ const VideosSectionSuspense = () => {
                   <TableCell className="pl-6 w-[510px]">
                     <div className="flex items-center gap-4">
                       <div className="relative aspect-video w-36 shrink-0">
-                        <VideoThumbnail imageUrl={video.thumbnailUrl} />
+                        <VideoThumbnail
+                          imageUrl={video.thumbnailUrl}
+                          previewUrl={video.previewUrl}
+                          title={video.title}
+                          duration={video.duration || 0}
+                        />
                       </div>
-                      <div className="min-w00">
-                        <div
-                          onClick={() =>
-                            router.push(`/studio/videos/${video?.id}`)
-                          }
-                        >
-                          <a className="">{video.title ?? "Untitled"}</a>
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {/* small meta if needed */}
-                        </div>
+                      <div className="flex flex-col overflow-hidden gap-y-1">
+                        <span className="text-sm line-clamp-1">
+                          {video.title}
+                        </span>
+                        <span className="text-sm text-muted-foreground line-clamp-1">
+                          {video.description || "No description"}
+                        </span>
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>Visibility</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Views</TableCell>
-                  <TableCell>Comments</TableCell>
-                  <TableCell>Likes</TableCell>
+                  <TableCell>
+                    {
+                      <div className="flex items-center">
+                        {video.visibility === "private" ? (
+                          <Lock className="size-4 mr-2" />
+                        ) : (
+                          <Globe2 className="size-4 mr-2" />
+                        )}
+                        {snakeCaseToTitle(video.visibility)}
+                      </div>
+                    }
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex text-center">
+                      {snakeCaseToTitle(video.muxStatus || "waiting")}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-sm truncate">
+                    {format(new Date(video.createdAt), "d MMM yyyy")}
+                  </TableCell>
+                  <TableCell>{video.views || 0}</TableCell>
+                  <TableCell>{video.comments || 0}</TableCell>
+                  <TableCell>{video.likes || 0}</TableCell>
                 </TableRow>
               ))}
           </TableBody>
