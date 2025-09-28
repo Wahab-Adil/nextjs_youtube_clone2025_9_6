@@ -20,16 +20,69 @@ import VideoThumbnail from "@/modules/videos/ui/components/video-thumbnail";
 import { snakeCaseToTitle } from "@/lib/utils";
 import { format } from "date-fns";
 import { Globe2, Lock } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function VideosSection() {
   return (
-    <Suspense fallback={<p>Loading...</p>}>
+    <Suspense fallback={<VideoSectionSkeleton />}>
       <ErrorBoundary fallback={"Error"}>
         <VideosSectionSuspense />
       </ErrorBoundary>
     </Suspense>
   );
 }
+
+const VideoSectionSkeleton = () => {
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="pl-6 w-[510px]">Video</TableHead>
+          <TableHead>Visibility</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead>Date</TableHead>
+          <TableHead className="text-right">Views</TableHead>
+          <TableHead className="text-right">Comments</TableHead>
+          <TableHead className="text-right pr-6">Likes</TableHead>
+        </TableRow>
+      </TableHeader>
+
+      <TableBody>
+        {Array.from({ length: 5 }).map((_, index) => (
+          <TableRow key={index}>
+            <TableCell className="pl-6">
+              <div className="flex items-center gap-4">
+                <Skeleton className="h-20 w-36" />
+                <div className="flex flex-col gap-2">
+                  <Skeleton className="h-4 w-28" />
+                  <Skeleton className="h-3 w-24" />
+                </div>
+              </div>
+            </TableCell>
+            <TableCell>
+              <Skeleton className="h-4 w-20" />
+            </TableCell>
+            <TableCell>
+              <Skeleton className="h-4 w-16" />
+            </TableCell>
+            <TableCell>
+              <Skeleton className="h-4 w-24" />
+            </TableCell>
+            <TableCell className="text-right text-sm pl-24 ">
+              <Skeleton className="h-4 w-12 ml-0" />
+            </TableCell>
+            {/* Comments, Likes */}
+            {["Comments", "Likes"].map((_, i) => (
+              <TableCell className="text-right text-sm pr-6" key={i}>
+                <Skeleton className="h-4 w-12 ml-0" />
+              </TableCell>
+            ))}
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+};
 
 const VideosSectionSuspense = () => {
   const router = useRouter();
@@ -62,7 +115,7 @@ const VideosSectionSuspense = () => {
                 <TableRow
                   key={video.id}
                   onClick={() => router.push(`/studio/videos/${video?.id}`)}
-                  className="cursor-pointer"
+                  className="cursor-pointer text-sm"
                 >
                   <TableCell className="pl-6 w-[510px]">
                     <div className="flex items-center gap-4">
@@ -104,9 +157,15 @@ const VideosSectionSuspense = () => {
                   <TableCell className="text-sm truncate">
                     {format(new Date(video.createdAt), "d MMM yyyy")}
                   </TableCell>
-                  <TableCell>{video.views || 0}</TableCell>
-                  <TableCell>{video.comments || 0}</TableCell>
-                  <TableCell>{video.likes || 0}</TableCell>
+                  <TableCell className="text-right text-sm">
+                    {video.views || 0}
+                  </TableCell>
+                  <TableCell className="text-right text-sm">
+                    {video.comments || 0}
+                  </TableCell>
+                  <TableCell className="text-right text-sm pr-6">
+                    {video.likes || 0}
+                  </TableCell>
                 </TableRow>
               ))}
           </TableBody>
