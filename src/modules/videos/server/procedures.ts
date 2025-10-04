@@ -1,8 +1,11 @@
+import { db } from "@/db";
+import { mux } from "@/lib/mux";
+import { videos, videoVisibility } from "@/db/schema";
+import { and, eq } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
+import { VideoUpdateSchame } from "@/db/schema";
 import { createTRPCRouter } from "@/app/trpc/init";
 import { protectedProcedure } from "@/app/trpc/init";
-import { db } from "@/db";
-import { videos } from "@/db/schema";
-import { mux } from "@/lib/mux";
 
 export const videosRouter = createTRPCRouter({
   create: protectedProcedure.mutation(async ({ ctx }) => {
@@ -38,4 +41,30 @@ export const videosRouter = createTRPCRouter({
 
     return { video, url: upload.url };
   }),
+  update: protectedProcedure
+    .input(VideoUpdateSchame)
+    .mutation(async ({ input, ctx }) => {
+      const { id: userId } = ctx.user;
+
+      if (!input.id) {
+        throw new TRPCError({ code: "BAD_REQUEST" });
+      }
+
+      const updateVideo = await db
+        .update(videos)
+        .set({
+          title: input.title,
+          description: input.description,
+          visibility: input.visibility,
+          categoryId: input.categoryId,
+          updatedAt: new Date(),
+        })
+        .where(and(eq(videos.id, input.id), eq(videos.userId, userId)));
+
+      if (!updateVideo) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
+      return updateVideo;
+    }),
 });
