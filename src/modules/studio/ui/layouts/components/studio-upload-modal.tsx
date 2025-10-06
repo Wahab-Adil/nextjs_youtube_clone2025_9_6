@@ -1,12 +1,14 @@
 "use client";
 import { toast } from "sonner";
 import { trpc } from "@/app/trpc/client";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Loader2Icon, Plus } from "lucide-react";
 import { ResponsiveModel } from "@/components/responsive-dialog";
 import { StudioUploader } from "./studio-uploader";
 
 const StudioUploadModal = () => {
+  const router = useRouter();
   const utils = trpc.useUtils();
 
   const createVideo = trpc.videos.create.useMutation({
@@ -19,6 +21,13 @@ const StudioUploadModal = () => {
     },
   });
 
+  const onSuccess = () => {
+    if (!createVideo.data?.video?.id) return;
+
+    createVideo.reset();
+    router.push(`/studio/videos/${createVideo.data.video.id}`);
+  };
+
   return (
     <>
       <ResponsiveModel
@@ -29,7 +38,7 @@ const StudioUploadModal = () => {
         {createVideo?.data?.url ? (
           <StudioUploader
             endpoint={createVideo?.data?.url}
-            onSuccess={() => {}}
+            onSuccess={onSuccess}
           />
         ) : (
           <Loader2Icon className="animate-spin" />

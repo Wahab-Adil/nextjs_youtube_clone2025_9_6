@@ -6,8 +6,27 @@ import { TRPCError } from "@trpc/server";
 import { VideoUpdateSchame } from "@/db/schema";
 import { createTRPCRouter } from "@/app/trpc/init";
 import { protectedProcedure } from "@/app/trpc/init";
+import z from "zod";
 
 export const videosRouter = createTRPCRouter({
+  remove: protectedProcedure
+    .input(z.object({ id: z.string().uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      const { id: userId } = ctx.user;
+      const { id } = input;
+
+      const [removed] = await db
+        .delete(videos)
+        .where(and(eq(videos.id, id), eq(videos.userId, userId)))
+        .returning();
+
+      if (!removed) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
+      return removed;
+    }),
+
   create: protectedProcedure.mutation(async ({ ctx }) => {
     const { id: userId } = ctx.user;
 
@@ -37,7 +56,8 @@ export const videosRouter = createTRPCRouter({
         muxStatus: "waiting",
         muxUploadId: upload.id,
       })
-      .returning();
+      .returning()
+      .then((res) => res[0]);
 
     return { video, url: upload.url };
   }),
