@@ -1,5 +1,6 @@
-import { formateDuration } from "@/lib/utils";
 import Image from "next/image";
+import { formateDuration } from "@/lib/utils";
+import { THUMBNAIL_FALLBACK } from "../../constants";
 
 interface VideoThumbnailProps {
   alt?: string;
@@ -18,7 +19,7 @@ const VideoThumbnail = ({
   duration,
   className,
 }: VideoThumbnailProps) => {
-  const src = imageUrl ?? "/placeholder.svg";
+  const src = imageUrl || THUMBNAIL_FALLBACK;
   const previewSrc = previewUrl ?? null;
 
   return (

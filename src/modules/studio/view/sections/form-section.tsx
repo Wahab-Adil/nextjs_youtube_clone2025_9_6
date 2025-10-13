@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { trpc } from "@/app/trpc/client";
 import { Suspense, useState } from "react";
+import { useRouter } from "next/navigation";
 import { snakeCaseToTitle } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ErrorBoundary } from "react-error-boundary";
@@ -44,10 +45,14 @@ import {
   Copy,
   CopyCheck,
   Globe2Icon,
+  ImagePlus,
   LockIcon,
   MoreVertical,
+  RotateCcw,
+  Sparkles,
   Trash,
 } from "lucide-react";
+import { THUMBNAIL_FALLBACK } from "@/modules/videos/constants";
 import { VideoPlayer } from "@/modules/videos/ui/components/VideoPlayer";
 
 interface FormSectionProps {
@@ -186,6 +191,54 @@ export const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name="thumbnailUrl"
+              render={() => {
+                return (
+                  <FormItem>
+                    <FormLabel>Thumbnail</FormLabel>
+                    <FormControl>
+                      <div className="p-0.5 border border-dashed border-neutral-400 relative h-[84px] w-[153px] group">
+                        <Image
+                          fill
+                          alt="thumbnail"
+                          src={video.thumbnailUrl || THUMBNAIL_FALLBACK}
+                          className="object-cover"
+                        />
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              type="button"
+                              size="icon"
+                              className="absolute right-1 top-1 black/50 hover:bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 duration-300 size-7"
+                            >
+                              <MoreVertical className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="start" side="right">
+                            <DropdownMenuItem>
+                              <ImagePlus className="w-4 h-4 mr-1" />
+                              Change
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Sparkles className="w-4 h-4 mr-1" />
+                              AI Generated
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <RotateCcw className="w-4 h-4 mr-1" />
+                              Restore
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </FormControl>
+                  </FormItem>
+                );
+              }}
+            />
+
             <FormField
               control={form.control}
               name="categoryId"
