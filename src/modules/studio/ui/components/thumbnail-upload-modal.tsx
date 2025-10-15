@@ -1,6 +1,5 @@
 import { trpc } from "@/app/trpc/client";
 import { ResponsiveModel } from "@/components/responsive-dialog";
-import { Button } from "@/components/ui/button";
 import { UploadDropzone } from "@/lib/uploadthing";
 
 interface ThumbnailUploadProps {
@@ -18,7 +17,7 @@ export const ThumbnailUploadModal = ({
 
   const onClickUploadComplete = () => {
     utils.studio.getMany.invalidate();
-    utils.studio.getOne.invalidate();
+    utils.studio.getOne.invalidate({ id: videoId });
     onOpenChange(false);
   };
   return (
@@ -27,13 +26,13 @@ export const ThumbnailUploadModal = ({
       open={open}
       onOpenChange={onOpenChange}
     >
-      <Button className=" flex flex-col gap-0.5 justify-center h-full w-full bg-gray-300 hover:bg-gray-400 text-black">
+      <div className=" flex flex-col gap-0.5 justify-center h-full w-full bg-gray-300 hover:bg-gray-400 text-black">
         <UploadDropzone
           endpoint="thumbnailUrl"
           input={{ videoId }}
           onClientUploadComplete={onClickUploadComplete}
         />
-      </Button>
+      </div>
     </ResponsiveModel>
   );
 };
