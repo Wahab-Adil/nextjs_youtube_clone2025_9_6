@@ -11,6 +11,32 @@ import { UTApi } from "uploadthing/server";
 import { workflow } from "@/lib/workflow";
 
 export const videosRouter = createTRPCRouter({
+  generateDescription: protectedProcedure
+    .input(z.object({ videoId: z.string().uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      const { workflowRunId } = await workflow.trigger({
+        url: `${process.env.UPSTASH_WORKFLOW_URL}/api/videos/workflow/description`,
+        body: {
+          userId: ctx.user.id,
+          videoId: input.videoId,
+        },
+      });
+
+      return workflowRunId;
+    }),
+  generateTitle: protectedProcedure
+    .input(z.object({ videoId: z.string().uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      const { workflowRunId } = await workflow.trigger({
+        url: `${process.env.UPSTASH_WORKFLOW_URL}/api/videos/workflow/title`,
+        body: {
+          userId: ctx.user.id,
+          videoId: input.videoId,
+        },
+      });
+
+      return workflowRunId;
+    }),
   generateThumbnail: protectedProcedure
     .input(z.object({ videoId: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
