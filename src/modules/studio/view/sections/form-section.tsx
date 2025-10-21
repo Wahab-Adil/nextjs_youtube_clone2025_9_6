@@ -46,10 +46,12 @@ import {
   CopyCheck,
   Globe2Icon,
   ImagePlus,
+  Loader2Icon,
   LockIcon,
   MoreVertical,
   RotateCcw,
   Sparkles,
+  SparklesIcon,
   Trash,
 } from "lucide-react";
 import { THUMBNAIL_FALLBACK } from "@/modules/videos/constants";
@@ -112,6 +114,28 @@ export const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
     },
     onError: (error) => {
       toast.error(error.message);
+    },
+  });
+
+  const generateDescription = trpc.videos.generateDescription.useMutation({
+    onSuccess: () => {
+      toast.success("Background Job started.", {
+        description: "This may take some time",
+      });
+    },
+    onError: (error) => {
+      toast.error("Something Went Wrong!");
+    },
+  });
+
+  const generateTitle = trpc.videos.generateTitle.useMutation({
+    onSuccess: () => {
+      toast.success("Background Job started.", {
+        description: "This may take some time",
+      });
+    },
+    onError: (error) => {
+      toast.error("Something Went Wrong!");
     },
   });
 
@@ -192,7 +216,29 @@ export const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Title</FormLabel>
+                    <FormLabel>
+                      <div className="flex items-center gap-x-2">
+                        Title
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          type="button"
+                          className="rounded-full size-6 [&_svg]:size-3"
+                          onClick={() => {
+                            generateTitle.mutate({ videoId: video.id });
+                          }}
+                          disabled={
+                            generateTitle.isPending || !video.muxTrackId
+                          }
+                        >
+                          {generateTitle.isPending ? (
+                            <Loader2Icon className="animate-spin" />
+                          ) : (
+                            <SparklesIcon />
+                          )}
+                        </Button>
+                      </div>
+                    </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
@@ -208,7 +254,27 @@ export const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description</FormLabel>
+                    <div className="flex items-center gap-x-2">
+                      Description
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        type="button"
+                        className="rounded-full size-6 [&_svg]:size-3"
+                        onClick={() => {
+                          generateDescription.mutate({ videoId: video.id });
+                        }}
+                        disabled={
+                          generateDescription.isPending || !video.muxTrackId
+                        }
+                      >
+                        {generateDescription.isPending ? (
+                          <Loader2Icon className="animate-spin" />
+                        ) : (
+                          <SparklesIcon />
+                        )}
+                      </Button>
+                    </div>
                     <FormControl>
                       <Textarea
                         placeholder="Add Description"
