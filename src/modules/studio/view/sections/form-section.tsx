@@ -138,9 +138,9 @@ export const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
   const [thumbnailGenerateModalOpen, setThumbnailGenerateModalOpen] =
     useState(false);
 
-  const fullUrl = `${process.env.VERCEL_URL ?? "http://localhost:3000"}/watch/${
-    video.id
-  }`;
+  const fullUrl = `${
+    process.env.VERCEL_URL || "http://localhost:3000"
+  }/videos/${video.id}`;
 
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const onCopy = async () => {
@@ -450,7 +450,7 @@ export const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
                     <div className="flex items-center gap-2">
                       <Link
                         className="flex flex-nowrap "
-                        href={`/watch/${video.id}`}
+                        href={`/videos/${video.id}`}
                       >
                         <p className="line-clamp-1 text-sm text-blue-500">
                           {fullUrl}
