@@ -5,7 +5,7 @@ import {
   DropdownMenuItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@radix-ui/react-dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 
 import {
@@ -40,6 +40,7 @@ const VideoMenu = ({ videoId, variant, onRemove }: VideoMenuProps) => {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
         <DropdownMenuItem
+          className="flex flex-row flex-nowrap"
           onClick={() => {
             onShare();
           }}
@@ -47,12 +48,18 @@ const VideoMenu = ({ videoId, variant, onRemove }: VideoMenuProps) => {
           <ShareIcon className="mr-2 h-4 w-4" />
           Share
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => {}}>
+        <DropdownMenuItem
+          className="flex flex-row flex-nowrap"
+          onClick={() => {}}
+        >
           <ListPlusIcon className="mr-2 h-4 w-4" />
           Add to Playlist
         </DropdownMenuItem>
         {onRemove && (
-          <DropdownMenuItem onClick={() => {}}>
+          <DropdownMenuItem
+            className="flex flex-row flex-nowrap"
+            onClick={() => {}}
+          >
             <Trash2Icon className="mr-2 h-4 w-4" />
             Remove
           </DropdownMenuItem>
