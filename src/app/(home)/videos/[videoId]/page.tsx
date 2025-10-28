@@ -9,7 +9,7 @@ interface PageParams {
 
 export default async function Page({ params }: PageParams) {
   const { videoId } = await params;
-  void trpc.videos.getOne.prefetch({ videoId });
+  void (await trpc.videos.getOne.prefetch({ videoId }));
 
   return (
     <HydrateClient>
