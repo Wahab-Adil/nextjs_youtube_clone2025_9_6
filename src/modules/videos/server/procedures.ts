@@ -1,8 +1,14 @@
 import z from "zod";
 import { db } from "@/db";
 import { mux } from "@/lib/mux";
-import { users, videoReactions, videos, videoViews } from "@/db/schema";
-import { and, eq, getTableColumns, inArray } from "drizzle-orm";
+import {
+  subscriptions,
+  users,
+  videoReactions,
+  videos,
+  videoViews,
+} from "@/db/schema";
+import { and, eq, getTableColumns, inArray, isNotNull } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { VideoUpdateSchame } from "@/db/schema";
 import { baseProcedure, createTRPCRouter } from "@/app/trpc/init";
@@ -35,11 +41,28 @@ export const videosRouter = createTRPCRouter({
           .where(inArray(videoReactions.userId, UserId ? [UserId] : []))
       );
 
+      const viewerSubscriptions = db.$with("viewer_subscriptions").as(
+        db
+          .select()
+          .from(subscriptions)
+          .where(inArray(subscriptions.viewerId, UserId ? [UserId] : []))
+      );
+
       const [existingVideo] = await db
-        .with(viewerReactions)
+        .with(viewerReactions, viewerSubscriptions)
         .select({
           ...getTableColumns(videos),
-          user: getTableColumns(users),
+          user: {
+            ...getTableColumns(users),
+            viewerSubscribed: isNotNull(viewerSubscriptions.viewerId).mapWith(
+              Boolean
+            ),
+            subscriberCount: db.$count(
+              subscriptions,
+              eq(subscriptions.creatorId, users.id)
+            ),
+          },
+
           viewCount: db.$count(videoViews, eq(videoViews.videoId, videos.id)),
           likeCount: db.$count(
             videoReactions,
@@ -60,6 +83,10 @@ export const videosRouter = createTRPCRouter({
         .from(videos)
         .innerJoin(users, eq(videos.userId, users.id))
         .leftJoin(viewerReactions, eq(viewerReactions.videoId, videos.id))
+        .leftJoin(
+          viewerSubscriptions,
+          eq(viewerSubscriptions.creatorId, users.id)
+        )
         .where(eq(videos.id, input.videoId))
         .groupBy(videos.id, users.id, viewerReactions.type);
       if (!existingVideo) {
