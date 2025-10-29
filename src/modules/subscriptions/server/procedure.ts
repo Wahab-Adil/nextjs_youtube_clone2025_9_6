@@ -1,22 +1,12 @@
 import z from "zod";
 import { db } from "@/db";
-import { mux } from "@/lib/mux";
-import {
-  subscriptions,
-  users,
-  videoReactions,
-  videos,
-  videoViews,
-} from "@/db/schema";
-import { and, eq, getTableColumns, inArray } from "drizzle-orm";
+import { subscriptions } from "@/db/schema";
+import { and, eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
-import { VideoUpdateSchame } from "@/db/schema";
-import { baseProcedure, createTRPCRouter } from "@/app/trpc/init";
+import { createTRPCRouter } from "@/app/trpc/init";
 import { protectedProcedure } from "@/app/trpc/init";
-import { UTApi } from "uploadthing/server";
-import { workflow } from "@/lib/workflow";
 
-export const videosRouter = createTRPCRouter({
+export const subscriptionsRouter = createTRPCRouter({
   create: protectedProcedure
     .input(z.object({ userId: z.string().uuid() }))
     .mutation(async ({ input, ctx }) => {
