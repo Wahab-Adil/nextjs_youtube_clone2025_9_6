@@ -6,17 +6,26 @@ import { cn } from "@/lib/utils";
 import { trpc } from "@/app/trpc/client";
 
 import { ErrorBoundary } from "react-error-boundary";
-import { VideoPlayer } from "../components/VideoPlayer";
+import { VideoPlayer, VideoPlayerSkeleton } from "../components/VideoPlayer";
 import { VideoBanner } from "../components/video-banner";
-import { VideoTopRow } from "../components/video-top-row";
+import { VideoTopRow, VideoTopRowSkeleton } from "../components/video-top-row";
 
 interface videoSectionProps {
   videoId: string;
 }
 
+const VideoSectionSkeleton = () => {
+  return (
+    <>
+      <VideoPlayerSkeleton />
+      <VideoTopRowSkeleton />
+    </>
+  );
+};
+
 export function VideoSection({ videoId }: videoSectionProps) {
   return (
-    <Suspense fallback={<>Loading...</>}>
+    <Suspense fallback={<VideoSectionSkeleton />}>
       <ErrorBoundary fallback={<>Error</>}>
         <VideoSectionSuspense videoId={videoId} />
       </ErrorBoundary>

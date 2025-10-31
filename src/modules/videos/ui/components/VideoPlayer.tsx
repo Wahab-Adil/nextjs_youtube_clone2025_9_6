@@ -1,6 +1,7 @@
 "use client";
 import MuxPlayer from "@mux/mux-player-react";
 import { THUMBNAIL_FALLBACK } from "../../constants";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface VideoPlayerProps {
   playbackId?: string | null | undefined;
@@ -8,6 +9,20 @@ interface VideoPlayerProps {
   autoPlay?: string | null;
   onPlay?: () => void;
 }
+
+export const VideoPlayerSkeleton = () => {
+  return (
+    <div className="w-full aspect-video relative rounded-md overflow-hidden">
+      {/* Main video area */}
+      <Skeleton className="w-full h-full rounded-md" />
+
+      {/* Optional play button shimmer (centered fake icon) */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="h-12 w-12 bg-white/30 rounded-full animate-pulse" />
+      </div>
+    </div>
+  );
+};
 
 export const VideoPlayer = ({
   playbackId,
