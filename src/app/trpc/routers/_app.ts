@@ -6,15 +6,17 @@ import { categoriesRouter } from "@/modules/categories/server/procedures";
 import { videoViewsRouter } from "@/modules/video-views/server/procedures";
 import { subscriptionsRouter } from "@/modules/subscriptions/server/procedure";
 import { videoReactionsRouter } from "@/modules/video-reactions/server/procedures";
+import { commentReactionsRouter } from "@/modules/comment-reactions/server/procedures";
 
 export const appRouter = createTRPCRouter({
   studio: studioRouter,
   videos: videosRouter,
-  videoViews: videoViewsRouter,
+  comments: CommentsRouter,
   categories: categoriesRouter,
+  videoViews: videoViewsRouter,
   subscription: subscriptionsRouter,
   videoReactions: videoReactionsRouter,
-  comments: CommentsRouter,
+  commentReaction: commentReactionsRouter,
 });
 
 export type AppRouter = typeof appRouter;
