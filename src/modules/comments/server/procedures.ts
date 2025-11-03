@@ -1,7 +1,16 @@
 import z, { string } from "zod";
 import { db } from "@/db";
-import { comments, users } from "@/db/schema";
-import { and, count, desc, eq, getTableColumns, lt, or } from "drizzle-orm";
+import { commentReactions, comments, users } from "@/db/schema";
+import {
+  and,
+  count,
+  desc,
+  eq,
+  getTableColumns,
+  inArray,
+  lt,
+  or,
+} from "drizzle-orm";
 import {
   baseProcedure,
   createTRPCRouter,
@@ -55,14 +64,48 @@ export const CommentsRouter = createTRPCRouter({
         limit: z.number().min(1).max(100),
       })
     )
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const { videoId, cursor, limit } = input;
+      const { clerkUserId } = ctx;
+
+      let userId;
+
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(inArray(users.clerkId, clerkUserId ? [clerkUserId] : []));
+
+      if (user) {
+        userId = user.id;
+      }
+      const viewerReaction = db.$with("viewer_reactions").as(
+        db
+          .select()
+          .from(commentReactions)
+          .where(inArray(commentReactions.userId, userId ? [userId] : []))
+      );
 
       const [data, total] = await Promise.all([
         db
+          .with(viewerReaction)
           .select({
             ...getTableColumns(comments),
             user: users,
+            viewerReaction: viewerReaction.type,
+            likeCount: db.$count(
+              commentReactions,
+              and(
+                eq(commentReactions.commentId, comments.id),
+                eq(commentReactions.type, "like")
+              )
+            ),
+            disLikeCount: db.$count(
+              commentReactions,
+              and(
+                eq(commentReactions.commentId, comments.id),
+                eq(commentReactions.type, "dislike")
+              )
+            ),
           })
           .from(comments)
           .where(
@@ -80,6 +123,7 @@ export const CommentsRouter = createTRPCRouter({
             )
           )
           .innerJoin(users, eq(comments.userId, users.id))
+          .leftJoin(viewerReaction, eq(comments.id, viewerReaction.commentId))
           .orderBy(desc(comments.updatedAt), desc(comments.id))
           .limit(limit + 1),
         db
