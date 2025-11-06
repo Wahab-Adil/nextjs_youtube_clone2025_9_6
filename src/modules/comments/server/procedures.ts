@@ -8,6 +8,7 @@ import {
   eq,
   getTableColumns,
   inArray,
+  isNull,
   lt,
   or,
 } from "drizzle-orm";
@@ -20,10 +21,28 @@ import { TRPCError } from "@trpc/server";
 
 export const CommentsRouter = createTRPCRouter({
   create: protectedProcedure
-    .input(z.object({ videoId: string().uuid(), value: z.string() }))
+    .input(
+      z.object({
+        videoId: string().uuid(),
+        parentId: string().uuid().nullish(),
+        value: z.string(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const { id: userId } = ctx.user;
-      const { videoId } = input;
+      const { videoId, parentId } = input;
+
+      const [existingComment] = await db
+        .select()
+        .from(comments)
+        .where(inArray(comments.id, parentId ? [parentId] : []));
+
+      if (!existingComment && parentId) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+      if (existingComment.parentId && parentId) {
+        throw new TRPCError({ code: "BAD_REQUEST" });
+      }
 
       const [createdComment] = await db
         .insert(comments)
@@ -31,6 +50,7 @@ export const CommentsRouter = createTRPCRouter({
           userId: userId,
           videoId: videoId,
           value: input.value,
+          parentId,
         })
         .returning();
       return createdComment;
@@ -111,6 +131,7 @@ export const CommentsRouter = createTRPCRouter({
           .where(
             and(
               eq(comments.videoId, videoId),
+              isNull(comments.parentId),
               cursor
                 ? or(
                     lt(comments.updatedAt, cursor.updatedAt),
@@ -129,7 +150,7 @@ export const CommentsRouter = createTRPCRouter({
         db
           .select({ count: count() })
           .from(comments)
-          .where(eq(comments.videoId, videoId)),
+          .where(and(eq(comments.videoId, videoId), isNull(comments.parentId))),
       ]);
 
       const hasMore = data.length > limit;
