@@ -105,9 +105,11 @@ export const CommentForm = ({
           />
 
           <div className="flex justify-end gap-2 mt-2">
-            <Button variant="ghost" type="button" onClick={handleCancel}>
-              Cancel
-            </Button>
+            {onCancel && (
+              <Button variant="ghost" type="button" onClick={handleCancel}>
+                Cancel
+              </Button>
+            )}
             <Button disabled={createComment.isPending} type="submit" size="sm">
               {variant === "reply" ? "reply" : "Comment"}
             </Button>
