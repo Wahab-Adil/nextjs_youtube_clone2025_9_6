@@ -6,6 +6,7 @@ import { CommentForm } from "./comment-form";
 import { formatDistanceToNow } from "date-fns";
 import UserAvatar from "@/components/user-avatar";
 import { useClerk, useUser } from "@clerk/nextjs";
+import { CommentReplies } from "./comment-replies";
 import { CommentsGetManyOutput } from "../../types";
 
 import {
@@ -16,17 +17,19 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import {
-  MoreVertical,
-  MessagesSquare,
   Trash2,
   ThumbsUpIcon,
+  MoreVertical,
+  ChevronUpIcon,
   ThumbsDownIcon,
+  MessagesSquare,
+  ChevronDownIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
 interface CommentItemProps {
   comment: CommentsGetManyOutput[number];
-  variant: "comment" | "reply";
+  variant?: "comment" | "reply";
 }
 
 export const CommentItem = ({
@@ -74,6 +77,8 @@ export const CommentItem = ({
     },
   });
 
+  console.log(variant, comment.replyCount);
+
   return (
     <div className="flex gap-4">
       <Link href={`/users/${comment.userId}`}>
@@ -97,7 +102,7 @@ export const CommentItem = ({
           </div>
         </Link>
         <p className="text-sm">{comment.value}</p>
-        <div className="flex items-center gap-2 mt-1">
+        <div className="flex  items-center gap-2 mt-1">
           <div className="flex items-center">
             <Button
               className="size-8"
@@ -131,19 +136,37 @@ export const CommentItem = ({
             <span className="text-xs text-muted-foreground">
               {comment.disLikeCount}
             </span>
+            {variant === "comment" && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8"
+                onClick={() => setIsReplyOpen(true)}
+              >
+                Reply
+              </Button>
+            )}
           </div>
-          {variant === "comment" && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8"
-              onClick={() => setIsReplyOpen(true)}
-            >
-              Reply
-            </Button>
+
+          {comment.replyCount > 0 && variant === "comment" && isRepliesOpen && (
+            <CommentReplies parentId={comment.id} videoId={comment.videoId} />
           )}
         </div>
+
+        {comment.replyCount > 0 && variant === "comment" && (
+          <div className="pl-14">
+            <Button
+              size="sm"
+              variant="tertiary"
+              onClick={() => setIsRepliesOpen((current) => !current)}
+            >
+              {isRepliesOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
+              {comment.replyCount} replies
+            </Button>
+          </div>
+        )}
       </div>
+
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button
@@ -156,10 +179,13 @@ export const CommentItem = ({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => setIsReplyOpen(true)}>
-            <MessagesSquare className="mr-2 size-4" />
-            Replay
-          </DropdownMenuItem>
+          {variant === "comment" && (
+            <DropdownMenuItem onClick={() => setIsReplyOpen(true)}>
+              <MessagesSquare className="mr-2 size-4" />
+              Replay
+            </DropdownMenuItem>
+          )}
+
           {comment.user.clerkId === user?.id && (
             <DropdownMenuItem
               onClick={() => removeComment.mutate({ videoId: comment.id })}
