@@ -80,20 +80,22 @@ export const CommentItem = ({
   console.log(variant, comment.replyCount);
 
   return (
-    <div className="flex gap-4">
+    <div className="flex items-start gap-4">
+      {/* Avatar */}
       <Link href={`/users/${comment.userId}`}>
         <UserAvatar
-          size="lg"
+          size={variant === "comment" ? "lg" : "sm"}
           imageUrl={user?.imageUrl || "user-placeholder"}
           name={user?.fullName || "User"}
         />
       </Link>
+
+      {/* Main comment body */}
       <div className="flex-1 min-w-0">
+        {/* Header: username + time */}
         <Link href={`/users/${comment.userId}`}>
           <div className="flex items-center gap-2 mb-0.5">
-            <span className="font-medium text-sm pb-0.5">
-              {comment.user.name}
-            </span>
+            <span className="font-medium text-sm">{comment.user.name}</span>
             <span className="text-xs text-muted-foreground">
               {formatDistanceToNow(new Date(comment.updatedAt), {
                 addSuffix: true,
@@ -101,72 +103,96 @@ export const CommentItem = ({
             </span>
           </div>
         </Link>
-        <p className="text-sm">{comment.value}</p>
-        <div className="flex  items-center gap-2 mt-1">
-          <div className="flex items-center">
-            <Button
-              className="size-8"
-              size="icon"
-              variant="ghost"
-              disabled={like.isPending}
-              onClick={() => like.mutate({ commentId: comment.id })}
-            >
-              <ThumbsUpIcon
-                className={cn(
-                  comment.viewerReaction === "like" && "fill-black"
-                )}
-              />
-            </Button>
-            <span className="text-xs text-muted-foreground">
-              {comment.likeCount}
-            </span>
-            <Button
-              className="size-8"
-              size="icon"
-              variant="ghost"
-              disabled={dislike.isPending}
-              onClick={() => dislike.mutate({ commentId: comment.id })}
-            >
-              <ThumbsDownIcon
-                className={cn(
-                  comment.viewerReaction === "dislike" && "fill-black"
-                )}
-              />
-            </Button>
-            <span className="text-xs text-muted-foreground">
-              {comment.disLikeCount}
-            </span>
-            {variant === "comment" && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8"
-                onClick={() => setIsReplyOpen(true)}
-              >
-                Reply
-              </Button>
-            )}
-          </div>
 
-          {comment.replyCount > 0 && variant === "comment" && isRepliesOpen && (
-            <CommentReplies parentId={comment.id} videoId={comment.videoId} />
+        {/* Comment text */}
+        <p className="text-sm break-words">{comment.value}</p>
+
+        {/* Reaction buttons */}
+        <div className="flex items-center gap-1 mt-2">
+          <Button
+            size="icon"
+            variant="ghost"
+            className="size-8"
+            disabled={like.isPending}
+            onClick={() => like.mutate({ commentId: comment.id })}
+          >
+            <ThumbsUpIcon
+              className={cn(comment.viewerReaction === "like" && "fill-black")}
+            />
+          </Button>
+          <span className="text-xs text-muted-foreground">
+            {comment.likeCount}
+          </span>
+
+          <Button
+            size="icon"
+            variant="ghost"
+            className="size-8"
+            disabled={dislike.isPending}
+            onClick={() => dislike.mutate({ commentId: comment.id })}
+          >
+            <ThumbsDownIcon
+              className={cn(
+                comment.viewerReaction === "dislike" && "fill-black"
+              )}
+            />
+          </Button>
+          <span className="text-xs text-muted-foreground">
+            {comment.disLikeCount}
+          </span>
+
+          {variant === "comment" && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 ml-1"
+              onClick={() => setIsReplyOpen(true)}
+            >
+              Reply
+            </Button>
           )}
         </div>
 
+        {/* Reply form (when open) */}
+        {isReplyOpen && variant === "comment" && (
+          <div className="mt-3 pl-12">
+            <CommentForm
+              videoId={comment.videoId}
+              parentId={comment.id}
+              variant="reply"
+              onCancel={() => setIsReplyOpen(false)}
+              onSuccess={() => {
+                setIsReplyOpen(false);
+                setIsRepliesOpen(true);
+              }}
+            />
+          </div>
+        )}
+
+        {/* Replies toggle */}
         {comment.replyCount > 0 && variant === "comment" && (
-          <div className="pl-14">
+          <div className="pl-12 mt-2">
             <Button
               size="sm"
               variant="tertiary"
               onClick={() => setIsRepliesOpen((current) => !current)}
+              className="flex items-center gap-1"
             >
               {isRepliesOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
               {comment.replyCount} replies
             </Button>
           </div>
         )}
+
+        {/* Replies list */}
+        {comment.replyCount > 0 && variant === "comment" && isRepliesOpen && (
+          <div className="mt-3 pl-12">
+            <CommentReplies parentId={comment.id} videoId={comment.videoId} />
+          </div>
+        )}
       </div>
 
+      {/* Dropdown menu */}
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button
@@ -178,11 +204,12 @@ export const CommentItem = ({
             <MoreVertical />
           </Button>
         </DropdownMenuTrigger>
+
         <DropdownMenuContent align="end">
           {variant === "comment" && (
             <DropdownMenuItem onClick={() => setIsReplyOpen(true)}>
               <MessagesSquare className="mr-2 size-4" />
-              Replay
+              Reply
             </DropdownMenuItem>
           )}
 
@@ -196,20 +223,6 @@ export const CommentItem = ({
           )}
         </DropdownMenuContent>
       </DropdownMenu>
-      {isReplyOpen && variant === "comment" && (
-        <div className="mt-4 pl-14">
-          <CommentForm
-            videoId={comment.videoId}
-            onSuccess={() => {
-              setIsReplyOpen(false);
-              setIsRepliesOpen(true);
-            }}
-            variant="reply"
-            parentId={comment.id}
-            onCancel={() => setIsReplyOpen(false)}
-          />
-        </div>
-      )}
     </div>
   );
 };
