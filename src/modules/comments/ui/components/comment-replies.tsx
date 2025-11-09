@@ -1,7 +1,8 @@
-import { DEFAULT_LIMIT } from "@/app/constants";
 import { trpc } from "@/app/trpc/client";
-import { Loader2Icon } from "lucide-react";
 import { CommentItem } from "./comment-item";
+import { Button } from "@/components/ui/button";
+import { DEFAULT_LIMIT } from "@/app/constants";
+import { CornerDownRightIcon, Loader2Icon } from "lucide-react";
 
 interface CommentRepliesProps {
   parentId: string;
@@ -43,7 +44,7 @@ export const CommentReplies = ({ parentId, videoId }: CommentRepliesProps) => {
           disabled={isFetchingNextPage}
         >
           Show more replies
-          <CornerDownRight className="ml-2" />
+          <CornerDownRightIcon className="ml-2" />
         </Button>
       )}
     </div>
