@@ -18,7 +18,7 @@ import { toast } from "sonner";
 
 interface VideoMenuProps {
   videoId: string;
-  variant: "ghost" | "secondary";
+  variant?: "ghost" | "secondary";
   onRemove?: () => void;
 }
 
