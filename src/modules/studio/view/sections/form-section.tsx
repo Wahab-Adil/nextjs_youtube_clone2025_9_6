@@ -50,6 +50,7 @@ import {
   LockIcon,
   MoreVertical,
   RotateCcw,
+  RotateCcwIcon,
   Sparkles,
   SparklesIcon,
   Trash,
@@ -163,6 +164,16 @@ export const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
     },
   });
 
+  const revalidate = trpc.videos.revalidate.useMutation({
+    onSuccess: () => {
+      utils.studio.getMany.invalidate();
+      utils.studio.getOne.invalidate({ id: videoId });
+      toast.success("video revalidated.");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
   const deleteVideo = trpc.videos.remove.useMutation({
     onSuccess: () => {
       utils.studio.getMany.invalidate();
@@ -252,6 +263,12 @@ export const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => revalidate.mutate({ videoId: video.id })}
+                  >
+                    <RotateCcwIcon className="size-4 mr-2" />
+                    Revalidate
+                  </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => deleteVideo.mutate({ id: video.id })}
                   >
