@@ -6,6 +6,8 @@ import { DEFAULT_LIMIT } from "@/app/constants";
 import { VideoRowCard } from "../components/video-row-card";
 import { VideoGridCard } from "../components/video-grid-card";
 import { InfiniteScroll } from "@/components/infinate-scroll";
+import { Suspense } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 
 interface suggestionsSectionsProps {
   videoId: string;
@@ -13,6 +15,19 @@ interface suggestionsSectionsProps {
 }
 
 const SuggestionSection = ({ videoId, isManual }: suggestionsSectionsProps) => {
+  return (
+    <Suspense fallback={<p>loading...</p>}>
+      <ErrorBoundary fallback={<p>Error</p>}>
+        <SuggestionSectionSuspense videoId={videoId} isManual />
+      </ErrorBoundary>
+    </Suspense>
+  );
+};
+
+const SuggestionSectionSuspense = ({
+  videoId,
+  isManual,
+}: suggestionsSectionsProps) => {
   const [suggestions, query] = trpc.suggestion.getMany.useSuspenseInfiniteQuery(
     {
       videoId,
