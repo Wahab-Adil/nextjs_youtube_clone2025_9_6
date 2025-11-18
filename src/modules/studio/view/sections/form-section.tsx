@@ -61,6 +61,7 @@ import { VideoPlayer } from "@/modules/videos/ui/components/VideoPlayer";
 
 import { ThumbnailUploadModal } from "../../ui/components/thumbnail-upload-modal";
 import { ThumbnailGenerateModel } from "../../ui/components/ThumbnailGenerateModel";
+import { APP_URL } from "@/app/constants";
 
 interface FormSectionProps {
   videoId: string;
@@ -139,9 +140,7 @@ export const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
   const [thumbnailGenerateModalOpen, setThumbnailGenerateModalOpen] =
     useState(false);
 
-  const fullUrl = `${
-    process.env.VERCEL_URL || "http://localhost:3000"
-  }/videos/${video.id}`;
+  const fullUrl = `${APP_URL || "http://localhost:3000"}/videos/${video.id}`;
 
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const onCopy = async () => {
