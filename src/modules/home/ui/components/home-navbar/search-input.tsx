@@ -1,5 +1,6 @@
+"use client";
 import React, { useState } from "react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 import { SearchIcon, XIcon } from "lucide-react";
 import { APP_URL } from "@/app/constants";
