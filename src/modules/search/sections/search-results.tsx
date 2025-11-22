@@ -2,13 +2,27 @@
 import { trpc } from "@/app/trpc/client";
 import { DEFAULT_LIMIT } from "@/app/constants";
 
+import {
+  VideoRowCard,
+  VideoRowCardSkeleton,
+} from "@/modules/videos/ui/components/video-row-card";
+import {
+  VideoGridCard,
+  VideoGridCardSkeleton,
+} from "@/modules/videos/ui/components/video-grid-card";
+
+import { useIsMobile } from "@/hooks/use-mobile";
+import { InfiniteScroll } from "@/components/infinate-scroll";
+
 interface SearchResultsProps {
   query?: string;
   categoryId?: string;
 }
 
 const SearchResults = ({ query, categoryId }: SearchResultsProps) => {
-  const [results, resultQuery] = trpc.search.getMany.useSuspenseInfiniteQuery(
+  const isMobile = useIsMobile();
+
+  const [results, resultsQuery] = trpc.search.getMany.useSuspenseInfiniteQuery(
     {
       query,
       categoryId,
@@ -18,7 +32,32 @@ const SearchResults = ({ query, categoryId }: SearchResultsProps) => {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     }
   );
-  return <div>{JSON.stringify(results)}</div>;
+  return (
+    <>
+      {isMobile ? (
+        <div className="flex flex-col gap-4 gap-y-10">
+          {results.pages.flatMap((page) =>
+            page.items.map((video) => (
+              <VideoGridCard key={video.id} data={video} />
+            ))
+          )}
+        </div>
+      ) : (
+        <div className="flex flex-col fap-4 ">
+          {results.pages.flatMap((page) =>
+            page.items.map((video) => (
+              <VideoRowCard key={video.id} data={video} />
+            ))
+          )}
+        </div>
+      )}
+      <InfiniteScroll
+        hasNextPage={resultsQuery.hasNextPage}
+        isFetchingNextPage={resultsQuery.isFetchingNextPage}
+        fetchNextPage={resultsQuery.fetchNextPage}
+      />
+    </>
+  );
 };
 
 export default SearchResults;
