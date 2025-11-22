@@ -81,7 +81,11 @@ export const VideoRowCardSkeleton = ({
   );
 };
 
-export const VideoRowCard = ({ data, size, onRemove }: VideoRowCardProps) => {
+export const VideoRowCard = ({
+  data,
+  size = "default",
+  onRemove,
+}: VideoRowCardProps) => {
   const compactViews = useMemo(
     () =>
       new Intl.NumberFormat("en", {
