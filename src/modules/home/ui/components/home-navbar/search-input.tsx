@@ -1,28 +1,34 @@
 "use client";
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { SearchIcon, XIcon } from "lucide-react";
 import { APP_URL } from "@/app/constants";
 import { Button } from "@/components/ui/button";
 
 export const SearchInput = () => {
-  const [value, setValue] = useState<string>("");
+  const searchParams = useSearchParams();
+  const query = searchParams.get("query") || "";
+  const categoryId = searchParams.get("categroyId") || "";
+
+  const [value, setValue] = useState<string>(query);
+
   const router = useRouter();
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const url = new URL(
-      "/search",
-      APP_URL ? `https://${APP_URL}` : "http://localhost:3000"
-    );
+    const url = new URL("/search", APP_URL);
     const newQuery = value.trim();
+
+    url.searchParams.set("query", encodeURIComponent(newQuery));
+
+    if (categoryId) {
+      url.searchParams.set("categoryId", categoryId);
+    }
 
     if (newQuery === "") {
       url.searchParams.delete("query");
-    } else {
-      url.searchParams.set("query", encodeURIComponent(newQuery));
     }
 
     setValue(newQuery);
