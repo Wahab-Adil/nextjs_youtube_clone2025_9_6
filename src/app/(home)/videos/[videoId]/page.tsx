@@ -8,6 +8,8 @@ interface PageParams {
   }>;
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function Page({ params }: PageParams) {
   const { videoId } = await params;
   void (await trpc.videos.getOne.prefetch({ videoId: videoId }));
