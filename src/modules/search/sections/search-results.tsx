@@ -1,4 +1,6 @@
 "use client";
+
+import { Suspense } from "react";
 import { trpc } from "@/app/trpc/client";
 import { DEFAULT_LIMIT } from "@/app/constants";
 
@@ -12,6 +14,7 @@ import {
 } from "@/modules/videos/ui/components/video-grid-card";
 
 import { useIsMobile } from "@/hooks/use-mobile";
+import { ErrorBoundary } from "react-error-boundary";
 import { InfiniteScroll } from "@/components/infinate-scroll";
 
 interface SearchResultsProps {
@@ -19,7 +22,37 @@ interface SearchResultsProps {
   categoryId?: string;
 }
 
-const SearchResults = ({ query, categoryId }: SearchResultsProps) => {
+export const SearchResults = ({ query, categoryId }: SearchResultsProps) => {
+  return (
+    <Suspense
+      key={`${query}-${categoryId}`}
+      fallback={<ResultsSectionSkeleton />}
+    >
+      <ErrorBoundary fallback="Error">
+        <SearchResultsSuspense query={query} categoryId={categoryId} />
+      </ErrorBoundary>
+    </Suspense>
+  );
+};
+
+const ResultsSectionSkeleton = () => {
+  return (
+    <div>
+      <div className="hidden flex-col gap-4 md:flex">
+        {Array.from({ length: 5 }).map((_, index) => (
+          <VideoRowCardSkeleton key={index} />
+        ))}
+      </div>
+      <div className="flex flex-col gap-4 p-4 gap-y-10 pt-6 md:hidden">
+        {Array.from({ length: 5 }).map((_, index) => (
+          <VideoGridCardSkeleton key={index} />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const SearchResultsSuspense = ({ query, categoryId }: SearchResultsProps) => {
   const isMobile = useIsMobile();
 
   const [results, resultsQuery] = trpc.search.getMany.useSuspenseInfiniteQuery(
