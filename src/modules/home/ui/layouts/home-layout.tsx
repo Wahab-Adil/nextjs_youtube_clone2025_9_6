@@ -6,6 +6,8 @@ interface HomeLayoutProps {
   children: React.ReactNode;
 }
 
+export const dynamic = "force-dynamic";
+
 export const HomeLayout = ({ children }: HomeLayoutProps) => {
   return (
     <SidebarProvider>
