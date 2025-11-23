@@ -140,7 +140,7 @@ export const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
   const [thumbnailGenerateModalOpen, setThumbnailGenerateModalOpen] =
     useState(false);
 
-  const fullUrl = `${APP_URL || "http://localhost:3000"}/videos/${video.id}`;
+  const fullUrl = `${APP_URL}/videos/${video.id}`;
 
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const onCopy = async () => {
