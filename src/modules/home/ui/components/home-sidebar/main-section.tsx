@@ -15,8 +15,8 @@ import { Home, PlaySquare, Flame } from "lucide-react";
 const items = [
   { title: "Home", url: "/", icon: Home },
   {
-    title: "Subscriptions",
-    url: "/feed/subscriptions",
+    title: "Subscribed",
+    url: "/feed/subscribed",
     icon: PlaySquare,
     auth: true,
   },
