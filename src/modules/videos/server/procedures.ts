@@ -19,13 +19,91 @@ import {
   or,
 } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
-import { VideoUpdateSchame } from "@/db/schema";
-import { baseProcedure, createTRPCRouter } from "@/app/trpc/init";
-import { protectedProcedure } from "@/app/trpc/init";
-import { UTApi } from "uploadthing/server";
 import { workflow } from "@/lib/workflow";
+import { UTApi } from "uploadthing/server";
+import { VideoUpdateSchame } from "@/db/schema";
+import { protectedProcedure } from "@/app/trpc/init";
+import { baseProcedure, createTRPCRouter } from "@/app/trpc/init";
 
 export const videosRouter = createTRPCRouter({
+  getManySubscribed: protectedProcedure
+    .input(
+      z.object({
+        cursor: z
+          .object({
+            id: z.string().uuid(),
+            updatedAt: z.date(),
+          })
+          .nullish(),
+        limit: z.number().min(1).max(100),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { cursor, limit } = input;
+      const { id: userId } = ctx.user;
+
+      const viwerSubscriptions = db.$with("viewer_subscription").as(
+        db
+          .select({
+            userId: subscriptions.creatorId,
+          })
+          .from(subscriptions)
+          .where(eq(subscriptions.viewerId, userId))
+      );
+
+      const data = await db
+        .with(viwerSubscriptions)
+        .select({
+          ...getTableColumns(videos),
+          user: users,
+          viewCount: db.$count(videoViews, eq(videoViews.videoId, videos.id)),
+          likeCount: db.$count(
+            videoReactions,
+            and(
+              eq(videoReactions.videoId, videos.id),
+              eq(videoReactions.type, "like")
+            )
+          ),
+          dislikeCount: db.$count(
+            videoReactions,
+            and(
+              eq(videoReactions.videoId, videos.id),
+              eq(videoReactions.type, "dislike")
+            )
+          ),
+        })
+        .from(videos)
+        .innerJoin(users, eq(videos.userId, users.id))
+        .innerJoin(viwerSubscriptions, eq(viwerSubscriptions.userId, users.id))
+        .where(
+          and(
+            eq(videos.visibility, "public"),
+            cursor
+              ? or(
+                  lt(videos.updatedAt, cursor.updatedAt),
+                  and(
+                    eq(videos.updatedAt, cursor.updatedAt),
+                    lt(videos.id, cursor.id)
+                  )
+                )
+              : undefined
+          )
+        )
+        .orderBy(desc(videos.updatedAt), desc(videos.id))
+        .limit(limit + 1);
+
+      const hasMore = data.length > limit;
+      const items = hasMore ? data.slice(0, -1) : data;
+      const lastItem = items[items.length - 1];
+      const nextCursor = hasMore
+        ? { id: lastItem.id, updatedAt: lastItem.updatedAt }
+        : null;
+
+      return {
+        items,
+        nextCursor,
+      };
+    }),
   getManyTrending: baseProcedure
     .input(
       z.object({
