@@ -3,6 +3,7 @@ import { searchRouter } from "@/modules/search/server/procedure";
 import { videosRouter } from "@/modules/videos/server/procedures";
 import { studioRouter } from "@/modules/studio/server/procedures";
 import { CommentsRouter } from "@/modules/comments/server/procedures";
+import { playlistsRouter } from "@/modules/playlists/server/procedures";
 import { categoriesRouter } from "@/modules/categories/server/procedures";
 import { suggestionsRouter } from "@/modules/suggestions/server/procedure";
 import { videoViewsRouter } from "@/modules/video-views/server/procedures";
@@ -15,6 +16,7 @@ export const appRouter = createTRPCRouter({
   videos: videosRouter,
   search: searchRouter,
   comments: CommentsRouter,
+  playlists: playlistsRouter,
   categories: categoriesRouter,
   videoViews: videoViewsRouter,
   suggestion: suggestionsRouter,
