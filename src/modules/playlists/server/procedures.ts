@@ -89,7 +89,7 @@ export const playlistsRouter = createTRPCRouter({
       const items = hasMore ? data.slice(0, -1) : data;
       const lastItem = items[items.length - 1];
       const nextCursor = hasMore
-        ? { id: lastItem.id, viewedAt: lastItem.likedAt }
+        ? { id: lastItem.id, likedAt: lastItem.likedAt }
         : null;
 
       return {
