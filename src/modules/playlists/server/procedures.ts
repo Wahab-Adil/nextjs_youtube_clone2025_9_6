@@ -67,7 +67,10 @@ export const playlistsRouter = createTRPCRouter({
         })
         .from(videos)
         .innerJoin(users, eq(videos.userId, users.id))
-        .innerJoin(videoReactions, eq(videos.id, videoReactions.videoId))
+        .innerJoin(
+          viewerVideoReactions,
+          eq(videos.id, viewerVideoReactions.videoId)
+        )
         .where(
           and(
             eq(videos.visibility, "public"),
