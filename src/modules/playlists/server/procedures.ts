@@ -67,7 +67,10 @@ export const playlistsRouter = createTRPCRouter({
         })
         .from(videos)
         .innerJoin(users, eq(videos.userId, users.id))
-        .innerJoin(videoReactions, eq(videos.id, videoReactions.videoId))
+        .innerJoin(
+          viewerVideoReactions,
+          eq(videos.id, viewerVideoReactions.videoId)
+        )
         .where(
           and(
             eq(videos.visibility, "public"),
@@ -89,7 +92,7 @@ export const playlistsRouter = createTRPCRouter({
       const items = hasMore ? data.slice(0, -1) : data;
       const lastItem = items[items.length - 1];
       const nextCursor = hasMore
-        ? { id: lastItem.id, viewedAt: lastItem.likedAt }
+        ? { id: lastItem.id, likedAt: lastItem.likedAt }
         : null;
 
       return {
