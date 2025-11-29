@@ -1,6 +1,9 @@
+"use client";
+
 import { useState } from "react";
 import { PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PlaylistCreateModal } from "../components/playlist-create-modal";
 
 export const PlaylistsView = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false);

@@ -1,5 +1,11 @@
+import { PlaylistsView } from "@/modules/playlists/ui/views/playlists-view";
+
 const page = () => {
-  return <div>Playlists</div>;
+  return (
+    <div>
+      <PlaylistsView />
+    </div>
+  );
 };
 
 export default page;
