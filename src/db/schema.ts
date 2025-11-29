@@ -329,9 +329,12 @@ export const playlistVideos = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
-  (t) => ({
-    pk: primaryKey({ columns: [t.playlistId, t.videoId] }),
-  })
+  (t) => [
+    primaryKey({
+      name: "playlist_video_pk",
+      columns: [t.playlistId, t.videoId],
+    }),
+  ]
 );
 
 export const playlistVideoRelations = relations(playlistVideos, ({ one }) => ({
