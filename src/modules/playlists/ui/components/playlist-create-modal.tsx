@@ -34,9 +34,11 @@ export const PlaylistCreateModal = ({
     defaultValues: { name: "" },
   });
 
+  const utils = trpc.useUtils();
   const create = trpc.playlists.create.useMutation({
     onSuccess: () => {
-      toast.success("Playlist created.", {});
+      toast.success("Playlist created.");
+      utils.playlists.getMany.invalidate();
       form.reset();
       onOpenChange(false);
     },
