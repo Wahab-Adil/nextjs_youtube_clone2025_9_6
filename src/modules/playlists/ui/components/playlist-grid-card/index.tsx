@@ -1,11 +1,23 @@
 import Link from "next/link";
-import { PlaylistThumbnail } from "../playlist-thumbnail";
+import { PlayListInfo, PlaylistInfoSkeleton } from "./playlist-info";
+import {
+  PlaylistThumbnail,
+  PlaylistThumbnailSkeleton,
+} from "../playlist-thumbnail";
+import { THUMBNAIL_FALLBACK } from "@/modules/videos/constants";
 import { PlaylistGetManyOutput } from "@/modules/playlists/types";
 
 interface PlaylistGridCardProps {
   data: PlaylistGetManyOutput["items"][number];
 }
-
+export const PlaylistGridCardSkeleton = () => {
+  return (
+    <div className="flex flex-col gap-2">
+      <PlaylistThumbnailSkeleton />
+      <PlaylistInfoSkeleton />
+    </div>
+  );
+};
 export const PlaylistGridCard = ({ data }: PlaylistGridCardProps) => {
   return (
     <Link href={`/playlists/${data.id}`}>
@@ -13,15 +25,9 @@ export const PlaylistGridCard = ({ data }: PlaylistGridCardProps) => {
         <PlaylistThumbnail
           title={data.name}
           videoCount={data.videoCount}
-          imageUrl={undefined} // No custom thumbnail logic yet, will fallback
+          imageUrl={THUMBNAIL_FALLBACK} // No custom thumbnail logic yet, will fallback
         />
-        <span className="font-semibold line-clamp-2">{data.name}</span>
-        <span className="text-xs text-muted-foreground">
-          {data.videoCount} videos
-        </span>
-        <span className="text-xs text-muted-foreground">
-          View full playlist
-        </span>
+        <PlayListInfo data={data} />
       </div>
     </Link>
   );
