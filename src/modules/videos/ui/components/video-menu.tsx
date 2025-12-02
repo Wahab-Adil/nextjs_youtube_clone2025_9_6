@@ -1,4 +1,4 @@
-import React from "react";
+import { useState } from "react";
 
 import {
   DropdownMenu,
@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { APP_URL } from "@/app/constants";
+import { PlaylistAddModal } from "@/modules/playlists/ui/components/playlist-add-modal";
 
 interface VideoMenuProps {
   videoId: string;
@@ -30,41 +31,51 @@ const VideoMenu = ({ videoId, variant, onRemove }: VideoMenuProps) => {
     toast.success("Link copied to clipboard");
   };
 
+  const [isPlaylistAddModal, isSetPlaylistAddModal] = useState<boolean>(false);
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant={variant} size="icon" className="rounded-full">
-          <MoreVerticalIcon />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-        <DropdownMenuItem
-          className="flex flex-row flex-nowrap"
-          onClick={() => {
-            onShare();
-          }}
-        >
-          <ShareIcon className="mr-2 h-4 w-4" />
-          Share
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          className="flex flex-row flex-nowrap"
-          onClick={() => {}}
-        >
-          <ListPlusIcon className="mr-2 h-4 w-4" />
-          Add to Playlist
-        </DropdownMenuItem>
-        {onRemove && (
+    <>
+      <PlaylistAddModal
+        videoId={videoId}
+        open={isPlaylistAddModal}
+        onOpenChange={isSetPlaylistAddModal}
+      />
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant={variant} size="icon" className="rounded-full">
+            <MoreVerticalIcon />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
           <DropdownMenuItem
             className="flex flex-row flex-nowrap"
-            onClick={() => {}}
+            onClick={() => {
+              onShare();
+            }}
           >
-            <Trash2Icon className="mr-2 h-4 w-4" />
-            Remove
+            <ShareIcon className="mr-2 h-4 w-4" />
+            Share
           </DropdownMenuItem>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+          <DropdownMenuItem
+            className="flex flex-row flex-nowrap"
+            onClick={() => isSetPlaylistAddModal(true)}
+          >
+            <ListPlusIcon className="mr-2 h-4 w-4" />
+            Add to Playlist
+          </DropdownMenuItem>
+          {onRemove && (
+            <DropdownMenuItem
+              className="flex flex-row flex-nowrap"
+              onClick={() => {}}
+            >
+              <Trash2Icon className="mr-2 h-4 w-4" />
+              Remove
+            </DropdownMenuItem>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </>
   );
 };
 
